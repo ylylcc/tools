@@ -1,1 +1,270 @@
-建设中
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="羊羊羊，提供免费的在线工具，包括时间戳转换、JSON格式化等实用工具，为开发者和用户提供便利。">
+    <meta name="keywords" content="羊羊羊，在线工具,免费工具,时间戳转换,JSON工具,开发者工具">
+
+    <meta property="og:title" content="羊羊羊 - 工具站 - 免费在线工具">
+    <meta property="og:description" content="羊羊羊，提供免费的在线工具，包括时间戳转换、JSON格式化等实用工具，为开发者和用户提供便利。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tools.yanglichao.com/">
+
+    <title>羊羊羊 - 工具站 - 免费在线工具</title>
+
+    <style>
+        :root {
+            color-scheme: light dark;
+            --bg-light: #f9fafb;
+            --bg-dark: #18181b;
+            --text-light: #111827;
+            --text-dark: #f3f4f6;
+            --card-light: #ffffff;
+            --card-dark: #27272a;
+            --accent: #3b82f6;
+            --radius: 16px;
+            --sidebar-width: 240px;
+            --footer-height: 40px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            background-color: light-dark(var(--bg-light), var(--bg-dark));
+            color: light-dark(var(--text-light), var(--text-dark));
+            overflow: hidden;
+        }
+
+        /* 左侧导航 */
+        nav.sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, rgba(59, 130, 246, 0.08), transparent);
+            border-right: 1px solid rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .brand {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--accent);
+            padding: 30px 20px 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 10px;
+        }
+
+        .sidebar-menu ul {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin: 14px 0;
+        }
+
+        .sidebar-menu a {
+            display: block;
+            text-decoration: none;
+            padding: 12px 18px;
+            border-radius: var(--radius);
+            color: inherit;
+            font-weight: 600;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a:focus {
+            background-color: light-dark(rgba(59, 130, 246, 0.12), rgba(59, 130, 246, 0.25));
+            color: var(--accent);
+        }
+
+        /* 主体内容 */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 50px 80px 20px;
+        }
+
+        section {
+            margin-bottom: 80px;
+        }
+
+        h2 {
+            font-size: 1.7em;
+            margin-bottom: 30px;
+            padding-left: 14px;
+            border-left: 5px solid var(--accent);
+            letter-spacing: 0.5px;
+        }
+
+        /* 卡片布局 */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 32px;
+        }
+
+        .card-link {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .card {
+            background-color: light-dark(var(--card-light), var(--card-dark));
+            border-radius: var(--radius);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+            padding: 32px 24px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 180px;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 10px 28px rgba(59, 130, 246, 0.25);
+        }
+
+        .card h3 {
+            margin: 0 0 16px;
+            font-size: 1.3em;
+            line-height: 1.4;
+            color: var(--accent);
+        }
+
+        .card p {
+            font-size: 1em;
+            line-height: 1.8;
+            margin: 0 0 20px;
+            opacity: 0.9;
+            flex-grow: 1;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .tag {
+            background-color: light-dark(rgba(59, 130, 246, 0.12), rgba(59, 130, 246, 0.25));
+            color: var(--accent);
+            border-radius: 999px;
+            padding: 6px 14px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        /* 底部版权 */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: calc(100% - var(--sidebar-width));
+            text-align: center;
+            font-size: 0.85em;
+            color: rgba(0, 0, 0, 0.45);
+            background-color: light-dark(var(--bg-light), var(--bg-dark));
+            padding: 8px 0;
+            z-index: 10;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1000px) {
+            body {
+                flex-direction: column;
+            }
+
+            nav.sidebar {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            }
+
+            main {
+                padding: 30px 20px 20px;
+                height: auto;
+            }
+
+            .card-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<nav class="sidebar">
+    <div class="brand">羊羊羊</div>
+    <div class="sidebar-menu">
+        <ul id="categoryList"></ul>
+    </div>
+</nav>
+<main id="content"></main>
+<div class="footer" id="footer">© 2025 羊羊羊 保留所有权利</div>
+
+<script>
+    fetch('tools.json')
+        .then(res => res.json())
+        .then(data => {
+            const categoryList = document.getElementById('categoryList');
+            const content = document.getElementById('content');
+
+            data.categories.forEach(cat => {
+                const li = document.createElement('li');
+                const link = document.createElement('a');
+                link.href = `#${cat.id}`;
+                link.textContent = cat.name;
+                li.appendChild(link);
+                categoryList.appendChild(li);
+
+                const section = document.createElement('section');
+                section.id = cat.id;
+                const h2 = document.createElement('h2');
+                h2.textContent = cat.name;
+                section.appendChild(h2);
+
+                const grid = document.createElement('div');
+                grid.className = 'card-grid';
+                cat.tools.forEach(tool => {
+                    const cardLink = document.createElement('a');
+                    cardLink.href = tool.url || "#";
+                    cardLink.target = "_blank";
+                    cardLink.className = "card-link";
+
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `<h3>${tool.name}</h3><p>${tool.desc}</p>
+          <div class="tags">${tool.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>`;
+
+                    cardLink.appendChild(card);
+                    grid.appendChild(cardLink);
+                });
+                section.appendChild(grid);
+                content.appendChild(section);
+            });
+            document.getElementById('footer').innerHTML = `© 2025-${new Date().getFullYear()} 羊羊羊 保留所有权利`
+        });
+</script>
+</body>
+</html>

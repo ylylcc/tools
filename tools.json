@@ -1,0 +1,141 @@
+{
+    "categories": [
+        {
+            "id": "dev",
+            "name": "开发工具",
+            "tools": [
+                {
+                    "name": "Visual Studio Code",
+                    "desc": "轻量且功能强大的代码编辑器",
+                    "tags": [
+                        "IDE",
+                        "多语言",
+                        "插件"
+                    ],
+                    "url": "https://code.visualstudio.com/"
+                },
+                {
+                    "name": "Postman",
+                    "desc": "接口测试与调试工具",
+                    "tags": [
+                        "API",
+                        "调试",
+                        "HTTP"
+                    ],
+                    "url": "https://www.postman.com/"
+                },
+                {
+                    "name": "GitHub Desktop",
+                    "desc": "可视化 Git 管理客户端",
+                    "tags": [
+                        "Git",
+                        "版本控制"
+                    ],
+                    "url": "https://desktop.github.com/"
+                }
+            ]
+        },
+        {
+            "id": "design",
+            "name": "设计与创作",
+            "tools": [
+                {
+                    "name": "Figma",
+                    "desc": "在线UI设计与原型协作平台",
+                    "tags": [
+                        "UI",
+                        "协作",
+                        "原型"
+                    ],
+                    "url": "https://www.figma.com/"
+                },
+                {
+                    "name": "Canva",
+                    "desc": "轻松制作海报、社交图的设计平台",
+                    "tags": [
+                        "设计",
+                        "模板",
+                        "可视化"
+                    ],
+                    "url": "https://www.canva.com/"
+                },
+                {
+                    "name": "Photopea",
+                    "desc": "网页版PS工具",
+                    "tags": [
+                        "图片编辑",
+                        "免费",
+                        "在线"
+                    ],
+                    "url": "https://www.photopea.com/"
+                },
+                {
+                    "name": "Photopea",
+                    "desc": "网页版PS工具",
+                    "tags": [
+                        "图片编辑",
+                        "免费",
+                        "在线"
+                    ],
+                    "url": "https://www.photopea.com/"
+                },
+                {
+                    "name": "Photopea",
+                    "desc": "网页版PS工具",
+                    "tags": [
+                        "图片编辑",
+                        "免费",
+                        "在线"
+                    ],
+                    "url": "https://www.photopea.com/"
+                },
+                {
+                    "name": "Photopea",
+                    "desc": "网页版PS工具",
+                    "tags": [
+                        "图片编辑",
+                        "免费",
+                        "在线"
+                    ],
+                    "url": "https://www.photopea.com/"
+                }
+            ]
+        },
+        {
+            "id": "ai",
+            "name": "AI 工具",
+            "tools": [
+                {
+                    "name": "ChatGPT",
+                    "desc": "智能对话与写作助手",
+                    "tags": [
+                        "AI",
+                        "文本",
+                        "辅助"
+                    ],
+                    "url": "https://chat.openai.com/"
+                },
+                {
+                    "name": "Midjourney",
+                    "desc": "AI 绘画生成平台",
+                    "tags": [
+                        "AI",
+                        "艺术",
+                        "图像"
+                    ],
+                    "url": "https://www.midjourney.com/"
+                },
+                {
+                    "name": "Claude",
+                    "desc": "自然语言理解型AI助手",
+                    "tags": [
+                        "智能",
+                        "写作",
+                        "辅助"
+                    ],
+                    "url": "https://www.anthropic.com/"
+                }
+            ]
+        }
+    ]
+}

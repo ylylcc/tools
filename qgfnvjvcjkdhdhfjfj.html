@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="羊羊羊，提供免费的在线工具，包括时间戳转换、JSON格式化等实用工具，为开发者和用户提供便利。">
+    <meta name="keywords" content="羊羊羊，在线工具,免费工具,时间戳转换,JSON工具,开发者工具">
+
+    <meta property="og:title" content="羊羊羊 - 工具站 - 免费在线工具">
+    <meta property="og:description" content="羊羊羊，提供免费的在线工具，包括时间戳转换、JSON格式化等实用工具，为开发者和用户提供便利。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tools.yanglichao.com/">
+
+    <link rel="stylesheet" href="css/main.css"/>
+    <link rel="stylesheet" href="css/tdesign.min.css"/>
+
+    <script src="js/vue.global.js"></script>
+    <script src="js/tdesign.min.js"></script>
+
+    <title>羊羊羊 - 工具站 - 免费在线工具</title>
+</head>
+<body>
+<div id="app">
+    <div class="tools-box" id="tools-box">
+        <t-anchor style="display: none" v-for="(item, index) in tools" container="#anchor-container">
+            <t-anchor-item :href="`#${item.id}-${index}`" :title="item.name"/>
+        </t-anchor>
+
+        <div id="anchor-container">
+            <div v-for="(item, index) in tools" :id="`#${item.id}-${index}`">
+                <h2>{{item.name}}</h2>
+                <t-card :title="item.name" hover-shadow style="margin-bottom: 14px">
+                    请
+                </t-card>
+            </div>
+        </div>
+    </div>
+
+    <t-loading :loading="loading" size="large" attach="#tools-box"/>
+</div>
+
+<script>
+    const {createApp, ref} = Vue
+    const {MessagePlugin} = TDesign
+
+    createApp({
+        setup() {
+            const loading = ref(true);
+            const tools = ref([]);
+
+            fetch('datas/tools.json').then(response => response.json())
+                .then(data => {
+                    tools.value = data;
+                    loading.value = false;
+                }).catch(error => MessagePlugin.error({content: '页面加载失败，请刷新页面重试！'}));
+
+            return {
+                loading,
+                tools
+            }
+        }
+    }).use(TDesign).mount('#app')
+</script>
+</body>
+</html>
