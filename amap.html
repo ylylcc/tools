@@ -122,11 +122,11 @@ window._AMapSecurityConfig = {
       driving = new AMap.Driving({map, hideMarkers:true});
 
       driving.search([start.lng,start.lat],[end.lng,end.lat],(status,result)=>{
-        if(status!=='complete' || !result.routes || !result.routes.length) return alert('路线规划失败');
+        if(status!=='complete' || !result.route || !result.route.length) return alert('路线规划失败');
         
         const coords=[];
 
-        route.paths[0].steps.forEach(step => {
+        result.route.paths[0].steps.forEach(step => {
           const kmh = speedRule(step);
           if(!step.polyline) return;
           step.polyline.split(';').forEach(p => {
