@@ -150,7 +150,7 @@ window._AMapSecurityConfig = {
         carMarker=new AMap.Marker({map,position:[path[0].lng,path[0].lat],icon:'https://webapi.amap.com/images/car.png',offset:new AMap.Pixel(-13,-26),autoRotation:true});
 
         lastTime=performance.now();
-        animate();
+        animate(lastTime);
       });
     }
 
