@@ -2,16 +2,10 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8" />
-  <title>AMap 自动行驶示例 (HTML 扩展版)</title>
+  <title>AMap 自动行驶示例 (HTML 修复版)</title>
   <style>
     body { margin:0; font-family:Arial; display:flex; height:100vh; }
-    #controls {
-      width:360px;
-      padding:12px;
-      background:#fff;
-      box-shadow:0 4px 12px rgba(0,0,0,0.1);
-      overflow:auto;
-    }
+    #controls { width:360px; padding:12px; background:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.1); overflow:auto; }
     #map { flex:1; }
     input { width:100%; margin:5px 0; }
     .block { margin-bottom:12px; }
@@ -19,14 +13,14 @@
     .info-display { display:flex; flex-direction: column; gap:4px; margin-top:8px; }
   </style>
   <script type="text/javascript">
-  window._AMapSecurityConfig = {
+window._AMapSecurityConfig = {
     securityJsCode: "60f280e2e134af4be8bfd3582e33003b",
   };
 </script>
 </head>
 <body>
   <div id="controls">
-    <h3>AMap 自动行驶（扩展版 HTML）</h3>
+    <h3>AMap 自动行驶（修复版 HTML）</h3>
 
     <div class="block">
       <label>AMap Key</label>
@@ -84,7 +78,7 @@
 
     function parseLngLat(str) {
       const p = str.split(',').map(Number);
-      return (p.length===2) ? {lng:p[0],lat:p[1]} : null;
+      return (p.length===2 && !isNaN(p[0]) && !isNaN(p[1])) ? {lng:p[0],lat:p[1]} : null;
     }
 
     function dist(a, b) {
@@ -128,17 +122,25 @@
       driving = new AMap.Driving({map, hideMarkers:true});
 
       driving.search([start.lng,start.lat],[end.lng,end.lat],(status,result)=>{
-        if(status!=='complete') return alert('路线规划失败');
+        if(status!=='complete' || !result.routes || !result.routes.length) return alert('路线规划失败');
         const route=result.routes[0];
         const coords=[];
-        route.steps.forEach(step=>{
+
+        route.steps.forEach(step => {
           const kmh = speedRule(step);
-          step.path.forEach(p=>{
-            path.push({lng:p[0],lat:p[1]});
+          if(!step.path || !step.path.length) return;
+          step.path.forEach(p => {
+            const lng = Number(p[0]);
+            const lat = Number(p[1]);
+            if(isNaN(lng) || isNaN(lat)) return;
+            path.push({lng, lat});
             targetSpeeds.push(kmh);
-            coords.push([p[0],p[1]]);
+            coords.push([lng, lat]);
           });
         });
+
+        if(!path.length) return alert('规划路径为空');
+
         if(polyline) polyline.setMap(null);
         polyline=new AMap.Polyline({path:coords,map,showDir:true});
 
