@@ -124,14 +124,16 @@ window._AMapSecurityConfig = {
       driving.search([start.lng,start.lat],[end.lng,end.lat],(status,result)=>{
         console.log(result)
         if(status!=='complete' || !result.routes || !result.routes.length) return alert('路线规划失败');
-        
+        const route=result.routes[0];
         const coords=[];
-
-        result.routes[0].steps.forEach(step => {
+        
+        
+        route.steps.forEach(step => {
           const kmh = speedRule(step);
-          if(!step.polyline) return;
-          step.polyline.split(';').forEach(p => {
-            const [lng, lat] = p.split(',').map(Number);
+          if(!step.path || !step.path.length) return;
+          step.path.forEach(p => {
+            const lng = Number(p[0]);
+            const lat = Number(p[1]);
             if(isNaN(lng) || isNaN(lat)) return;
             path.push({lng, lat});
             targetSpeeds.push(kmh);
