@@ -122,7 +122,7 @@ window._AMapSecurityConfig = {
       driving = new AMap.Driving({map, hideMarkers:true});
 
       driving.search([start.lng,start.lat],[end.lng,end.lat],(status,result)=>{
-        if(status!=='complete' || !result.route || !result.route.length) return alert('路线规划失败');
+        if(status!=='complete' || !result.route.paths || !result.route.paths.length) return alert('路线规划失败');
         
         const coords=[];
 
