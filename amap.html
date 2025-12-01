@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>AMap 自动行驶示例 (HTML 扩展版)</title>
+  <style>
+    body { margin:0; font-family:Arial; display:flex; height:100vh; }
+    #controls {
+      width:360px;
+      padding:12px;
+      background:#fff;
+      box-shadow:0 4px 12px rgba(0,0,0,0.1);
+      overflow:auto;
+    }
+    #map { flex:1; }
+    input { width:100%; margin:5px 0; }
+    .block { margin-bottom:12px; }
+    h4 { margin-top:16px; }
+    .info-display { display:flex; flex-direction: column; gap:4px; margin-top:8px; }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <h3>AMap 自动行驶（扩展版 HTML）</h3>
+
+    <div class="block">
+      <label>AMap Key</label>
+      <input id="key" placeholder="填写你的 AMap Key" />
+    </div>
+
+    <div class="block">
+      <label>起点 (lng,lat)</label>
+      <input id="start" value="116.379028,39.865042" />
+      <label>终点 (lng,lat)</label>
+      <input id="end" value="116.427281,39.903719" />
+    </div>
+
+    <button onclick="initMapAndPlan()">加载地图 & 规划路线</button>
+
+    <div class="block">
+      <button onclick="togglePause()" id="pauseBtn">暂停</button>
+      <button onclick="resetAll()">重置</button>
+    </div>
+
+    <div class="block">
+      <label>全局速度倍率 (0.25 ~ 3.0)</label>
+      <input id="speedFactor" type="range" min="0.25" max="3" step="0.05" value="1" />
+      <span id="factorText">1.00x</span>
+    </div>
+
+    <div class="block info-display">
+      <div>当前速度: <b id="curSpeed">0 km/h</b></div>
+      <div>当前目标速度: <b id="targetSpeed">0 km/h</b></div>
+      <div>已行进点: <b id="curIndex">0</b></div>
+      <div>预计到达时间: <b id="eta">--:--</b></div>
+    </div>
+
+    <h4>速度规则（可修改 getTargetSpeedForStep）</h4>
+    <ul>
+      <li>路名含 “高速” → 90 km/h</li>
+      <li>含 “快速” → 70 km/h</li>
+      <li>含 “主干” → 50 km/h</li>
+      <li>其他 → 30 km/h</li>
+    </ul>
+  </div>
+
+  <div id="map"></div>
+
+  <script>
+    let map, driving, carMarker, polyline;
+    let path = [], targetSpeeds = [];
+    let idx = 0, v = 0, paused = false, raf = null, lastTime = 0;
+
+    const A_MAX = 1.5, D_MAX = 3.0;
+
+    document.getElementById('speedFactor').oninput = function () {
+      document.getElementById('factorText').innerText = this.value + 'x';
+    };
+
+    function parseLngLat(str) {
+      const p = str.split(',').map(Number);
+      return (p.length===2) ? {lng:p[0],lat:p[1]} : null;
+    }
+
+    function dist(a, b) {
+      const R = 6371000;
+      const toRad = d=>d*Math.PI/180;
+      const dLat=toRad(b.lat-a.lat), dLng=toRad(b.lng-a.lng);
+      const lat1=toRad(a.lat), lat2=toRad(b.lat);
+      const h = Math.sin(dLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2;
+      return 2*R*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));
+    }
+
+    function speedRule(step) {
+      const name = (step.road||'').toLowerCase();
+      if(name.includes('高速')) return 90;
+      if(name.includes('快速')) return 70;
+      if(name.includes('主干')) return 50;
+      return 30;
+    }
+
+    function loadAMap(key){
+      return new Promise((resolve,reject)=>{
+        if(window.AMap) return resolve(window.AMap);
+        const s=document.createElement('script');
+        s.src=`https://webapi.amap.com/maps?v=2.0&key=${key}&plugin=AMap.Driving`;
+        s.onload=()=>resolve(window.AMap);
+        s.onerror=reject;
+        document.head.appendChild(s);
+      });
+    }
+
+    async function initMapAndPlan(){
+      const key=document.getElementById('key').value.trim();
+      const start=parseLngLat(document.getElementById('start').value);
+      const end=parseLngLat(document.getElementById('end').value);
+      if(!key||!start||!end) return alert('请填写 key/起点/终点');
+      const AMap = await loadAMap(key);
+
+      if(!map) map=new AMap.Map('map',{zoom:16,center:[start.lng,start.lat]});
+
+      path=[], targetSpeeds=[], idx=0, v=0, paused=false;
+      driving = new AMap.Driving({map, hideMarkers:true});
+
+      driving.search([start.lng,start.lat],[end.lng,end.lat],(status,result)=>{
+        if(status!=='complete') return alert('路线规划失败');
+        const route=result.routes[0];
+        const coords=[];
+        route.steps.forEach(step=>{
+          const kmh = speedRule(step);
+          step.path.forEach(p=>{
+            path.push({lng:p[0],lat:p[1]});
+            targetSpeeds.push(kmh);
+            coords.push([p[0],p[1]]);
+          });
+        });
+        if(polyline) polyline.setMap(null);
+        polyline=new AMap.Polyline({path:coords,map,showDir:true});
+
+        if(carMarker) carMarker.setMap(null);
+        carMarker=new AMap.Marker({map,position:[path[0].lng,path[0].lat],icon:'https://webapi.amap.com/images/car.png',offset:new AMap.Pixel(-13,-26),autoRotation:true});
+
+        lastTime=performance.now();
+        animate();
+      });
+    }
+
+    function animate(ts){
+      raf=requestAnimationFrame(animate);
+      const dt=Math.min((ts-lastTime)/1000,0.1);
+      lastTime=ts;
+      if(paused||idx>=path.length-1) return;
+
+      const factor=Number(document.getElementById('speedFactor').value);
+      const target=(targetSpeeds[idx]/3.6)*factor;
+      if(v<target) v=Math.min(v+A_MAX*dt,target);
+      else if(v>target) v=Math.max(v-D_MAX*dt,target);
+
+      let move=v*dt;
+      while(move>0&&idx<path.length-1){
+        const cur=path[idx], nxt=path[idx+1];
+        const d=dist(cur,nxt);
+        if(move>=d){
+          carMarker.setPosition([nxt.lng,nxt.lat]);
+          idx++; move-=d;
+        } else {
+          const r=move/d;
+          const x=cur.lng+(nxt.lng-cur.lng)*r;
+          const y=cur.lat+(nxt.lat-cur.lat)*r;
+          carMarker.setPosition([x,y]);
+          path[idx]={lng:x,lat:y};
+          move=0;
+        }
+      }
+
+      document.getElementById('curSpeed').innerText=(v*3.6).toFixed(1)+' km/h';
+      document.getElementById('targetSpeed').innerText=targetSpeeds[idx]+' km/h';
+      document.getElementById('curIndex').innerText=idx;
+
+      // ETA 估算
+      let remainMeters=0;
+      for(let i=idx;i<path.length-1;i++) remainMeters+=dist(path[i],path[i+1]);
+      const etaSec=remainMeters/(v||0.1);
+      const min=Math.floor(etaSec/60), sec=Math.floor(etaSec%60);
+      document.getElementById('eta').innerText=`${min}:${sec.toString().padStart(2,'0')}`;
+    }
+
+    function togglePause(){
+      paused=!paused;
+      document.getElementById('pauseBtn').innerText=paused?'继续':'暂停';
+    }
+
+    function resetAll(){
+      if(raf) cancelAnimationFrame(raf);
+      path=[], targetSpeeds=[], idx=0, v=0;
+      if(carMarker) carMarker.setMap(null);
+      if(polyline) polyline.setMap(null);
+      document.getElementById('curSpeed').innerText='0 km/h';
+      document.getElementById('targetSpeed').innerText='0 km/h';
+      document.getElementById('curIndex').innerText='0';
+      document.getElementById('eta').innerText='--:--';
+    }
+  </script>
+</body>
+</html>
