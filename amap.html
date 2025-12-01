@@ -132,8 +132,8 @@ window._AMapSecurityConfig = {
           const kmh = speedRule(step);
           if(!step.path || !step.path.length) return;
           step.path.forEach(p => {
-            const lng = Number(p[0]);
-            const lat = Number(p[1]);
+            const lng = Number(p.lng);
+            const lat = Number(p.lat);
             if(isNaN(lng) || isNaN(lat)) return;
             path.push({lng, lat});
             targetSpeeds.push(kmh);
