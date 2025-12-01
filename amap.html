@@ -176,7 +176,25 @@ window._AMapSecurityConfig = {
           const r=move/d;
           const x=cur.lng+(nxt.lng-cur.lng)*r;
           const y=cur.lat+(nxt.lat-cur.lat)*r;
-          carMarker.setPosition([x,y]);
+          // carMarker.setPosition([x,y]);
+
+          // 计算行进角度
+          let angle = 0;
+          if(idx < path.length - 1){
+              const cur = path[idx];
+              const nxt = path[idx+1];
+              angle = Math.atan2(nxt.lat - cur.lat, nxt.lng - cur.lng) * 180 / Math.PI;
+          }
+          
+          // 更新 Marker 位置和角度
+          carMarker.setPosition([x, y]);
+          carMarker.setAngle(angle); // 强制旋转车头
+          
+          // 可选：让地图中心跟随车头，旋转地图视角
+          map.setCenter([x, y]);
+          map.setRotation(-angle); // 根据需要调整旋转方向
+
+          
           path[idx]={lng:x,lat:y};
           move=0;
         }
