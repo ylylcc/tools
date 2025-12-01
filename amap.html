@@ -123,11 +123,11 @@ window._AMapSecurityConfig = {
 
       driving.search([start.lng,start.lat],[end.lng,end.lat],(status,result)=>{
         console.log(result)
-        if(status!=='complete' || !result.route.paths || !result.route.paths.length) return alert('路线规划失败');
+        if(status!=='complete' || !result.routes || !result.routes.length) return alert('路线规划失败');
         
         const coords=[];
 
-        result.route.paths[0].steps.forEach(step => {
+        result.routes[0].steps.forEach(step => {
           const kmh = speedRule(step);
           if(!step.polyline) return;
           step.polyline.split(';').forEach(p => {
