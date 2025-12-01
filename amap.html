@@ -178,22 +178,32 @@ window._AMapSecurityConfig = {
           const y=cur.lat+(nxt.lat-cur.lat)*r;
           // carMarker.setPosition([x,y]);
 
-          // 计算行进角度
-          let angle = 0;
-          if(idx < path.length - 1){
-              const cur = path[idx];
-              const nxt = path[idx+1];
-              angle = Math.atan2(nxt.lat - cur.lat, nxt.lng - cur.lng) * 180 / Math.PI;
+          // ================================================
+          // 计算目标角度
+          const dx = nxt.lng - cur.lng;
+          const dy = nxt.lat - cur.lat;
+          let targetAngle = Math.atan2(dy, dx) * 180 / Math.PI;
+          targetAngle = (targetAngle + 360) % 360; // 保证 0~360
+          
+          // 当前角度
+          let curAngle = carMarker.getAngle() || targetAngle;
+          
+          // 插值函数：每帧最多旋转 maxRotate 度
+          function lerpAngle(cur, target, maxDelta) {
+              let delta = ((target - cur + 540) % 360) - 180; // -180~180
+              delta = Math.max(-maxDelta, Math.min(maxDelta, delta));
+              return (cur + delta + 360) % 360;
           }
           
-          // 更新 Marker 位置和角度
-          carMarker.setPosition([x, y]);
-          carMarker.setAngle(angle); // 强制旋转车头
+          const maxRotate = 5; // 每帧最大旋转角度，可调
+          let newAngle = lerpAngle(curAngle, targetAngle, maxRotate);
           
-          // 可选：让地图中心跟随车头，旋转地图视角
-          map.setCenter([x, y]);
-          map.setRotation(-angle); // 根据需要调整旋转方向
-
+          // 更新 Marker 角度
+          carMarker.setAngle(newAngle);
+          
+          // 可选：地图跟随旋转
+          map.setRotation(newAngle);
+          // ================================================
           
           path[idx]={lng:x,lat:y};
           move=0;
